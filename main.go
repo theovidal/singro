@@ -1,98 +1,72 @@
 package main
 
 import (
+	"log"
 	"strconv"
 	"syscall"
 	"time"
-
-	"github.com/micmonay/keybd_event"
 )
-
-type MacroGroup struct {
-	Macros []Macro
-	Delay  int
-}
-
-type Macro struct {
-	Keys    []int
-	Control bool
-	Shift   bool
-}
-
-func (group *MacroGroup) Execute() {
-	for _, macro := range group.Macros {
-		kb, err := keybd_event.NewKeyBonding()
-		if err != nil {
-			panic(err)
-		}
-
-		kb.SetKeys(macro.Keys...)
-		kb.HasSHIFT(macro.Shift)
-		kb.HasCTRL(macro.Control)
-
-		err = kb.Launching()
-		if err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Duration(group.Delay))
-	}
-
-}
 
 var (
 	user32               = syscall.NewLazyDLL("user32.dll")
 	procGetAsyncKeyState = user32.NewProc("GetKeyState")
+	procSendInput        = user32.NewProc("SendInput")
 
 	macros = map[int]MacroGroup{
 		6: {
 			Macros: []Macro{
 				{
-					Keys: []int{keybd_event.VK_T, keybd_event.VK_G},
-				},
-				{
-					Keys: []int{keybd_event.VK_G, keybd_event.VK_ENTER},
+					Keys: []MacroOutput{
+						Key{Key: 0x54},
+						Key{Key: 0x47, Delay: 50},
+						Key{Key: 0x47},
+						Key{Key: 0x0D},
+					},
+					Shift: true,
 				},
 			},
 		},
-		7: {
+		0xA3: {
 			Macros: []Macro{
 				{
-					Keys: []int{keybd_event.VK_F5},
+					Keys: []MacroOutput{
+						Mouse{Left: true},
+					},
+				},
+			},
+		},
+		5: {
+			Macros: []Macro{
+				{
+					Keys: []MacroOutput{
+						Key{Key: 0x74},
+					},
 				},
 			},
 		},
 	}
 )
 
-func GetKeyState(key int) uintptr {
-	value, _, _ := procGetAsyncKeyState.Call(uintptr(key))
-	return value
-}
-
 func main() {
+	log.Println("singro started")
+
+	stack := make(map[int]bool)
 	for {
 		time.Sleep(1 * time.Millisecond)
-		for KEY := 0; KEY <= 256; KEY++ {
-			pressed := false
-			for {
-				intValue := GetKeyState(KEY)
-				binValue := strconv.FormatInt(int64(intValue), 2)
 
-				if len(binValue) < 2 {
-					break
-				}
+		for key, macro := range macros {
+			intValue := GetKeyState(key)
+			binValue := strconv.FormatInt(int64(intValue), 2)
 
-				if !pressed {
-					macro, found := macros[KEY]
-					if !found {
-						continue
-					}
+			if len(binValue) < 2 {
+				stack[key] = false
+				continue
+			}
 
-					macro.Execute()
-				}
-
-				pressed = true
+			if !stack[key] {
+				log.Printf("Macro on key %d executed", key)
+				macro.Execute()
+				stack[key] = true
 			}
 		}
 	}
