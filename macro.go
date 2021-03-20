@@ -12,7 +12,7 @@ type MacroGroup struct {
 }
 
 func (group *MacroGroup) Execute() {
-	var input Input
+	var input KeyboardInput
 	input.Type = 1
 	for _, macro := range group.Macros {
 		for i := -1; i < macro.Repeat; i++ {
@@ -51,6 +51,7 @@ type Macro struct {
 }
 
 type Key struct {
+	Type     string
 	Right    bool
 	Middle   bool
 	Left     bool
@@ -60,74 +61,44 @@ type Key struct {
 }
 
 func (k Key) Activate() {
-	var input Input
-	input.Type = 1
+	var kbInput KeyboardInput
+	kbInput.Type = 1
 
-	input.ki.wVk = uint16(k.Key)
+	var mouseInput MouseInput
 
-	/*if k.Right {
-		input.mi.dwFlags |= 0x0008
+	if k.Right {
+		mouseInput.mi.dwFlags |= 0x0008
 	}
 	if k.Middle {
-		input.mi.dwFlags |= 0x0020
+		mouseInput.mi.dwFlags |= 0x0020
 	}
 	if k.Left {
-		input.mi.dwFlags |= 0x0002
-	}*/
+		mouseInput.mi.dwFlags |= 0x0002
+	}
 
 	Sleep(k.Delay)
-	input.Press()
+	if k.Type == "keyboard" {
+		kbInput.ki.wVk = uint16(k.Key)
+		kbInput.Press()
+	} else {
+		mouseInput.Apply()
+	}
 
-	/*input.mi.dwFlags = 0
+	mouseInput.mi.dwFlags = 0
 	if k.Right {
-		input.mi.dwFlags |= 0x0010
+		mouseInput.mi.dwFlags |= 0x0010
 	}
 	if k.Middle {
-		input.mi.dwFlags |= 0x0040
+		mouseInput.mi.dwFlags |= 0x0040
 	}
 	if k.Left {
-		input.mi.dwFlags |= 0x0004
-	}*/
+		mouseInput.mi.dwFlags |= 0x0004
+	}
 
 	Sleep(k.Duration)
-	input.Release()
-}
-
-type Mouse struct {
-	Right  bool
-	Middle bool
-	Left   bool
-}
-
-func (m Mouse) Activate() {
-	var input MouseInput
-
-	if m.Right {
-		input.dwFlags |= 0x0008
+	if k.Type == "keyboard" {
+		kbInput.Release()
+	} else {
+		mouseInput.Apply()
 	}
-	if m.Middle {
-		input.dwFlags |= 0x0020
-	}
-	if m.Left {
-		input.dwFlags |= 0x0002
-	}
-
-	input.Apply()
-
-	input.dwFlags = 0
-	if m.Right {
-		input.dwFlags |= 0x0010
-	}
-	if m.Middle {
-		input.dwFlags |= 0x0040
-	}
-	if m.Left {
-		input.dwFlags |= 0x0004
-	}
-
-	input.Apply()
-}
-
-type MacroOutput interface {
-	Activate()
 }

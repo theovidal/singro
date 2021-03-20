@@ -1,11 +1,15 @@
 6:
   macros:
     - keys:
-      - key: 0x54
-      - key: 0x47
+      - type: keyboard
+        key: 0x54
+      - type: keyboard
+        key: 0x47
         delay: 50
-      - key: 0x47
-      - key: 0x0D
+      - type: keyboard
+        key: 0x47
+      - type: keyboard
+        key: 0x0D
       shift: true
 0xA3:
   macros:
@@ -15,4 +19,5 @@
 5:
   macros:
     - keys:
-      - key: 0x74
+      - type: keyboard
+        key: 0x74
