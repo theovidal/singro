@@ -1,23 +1,40 @@
-6:
-  macros:
-    - keys:
-      - type: keyboard
-        key: 0x54
-      - type: keyboard
-        key: 0x47
-        delay: 50
-      - type: keyboard
-        key: 0x47
-      - type: keyboard
-        key: 0x0D
-      shift: true
-0xA3:
-  macros:
-    - keys:
-      - type: mouse
-        left: true
-5:
-  macros:
-    - keys:
-      - type: keyboard
-        key: 0x74
+global:
+  0xA3:
+    macros:
+      - keys:
+        - type: mouse
+          left: true
+  5:
+    macros:
+      - keys:
+        - type: keyboard
+          key: 0x74
+selected: 1
+configs:
+  -
+    6:
+      macros:
+        - keys:
+          - type: keyboard
+            key: 0x54
+          - type: keyboard
+            key: 0x47
+            delay: 50
+          - type: keyboard
+            key: 0x47
+          - type: keyboard
+            key: 0x0D
+          shift: true
+  -
+    6:
+      macros:
+        - keys:
+          - type: keyboard
+            key: 0x33
+            delay: 25
+          - type: mouse
+            right: true
+            delay: 25
+          - type: keyboard
+            key: 0x31
+            delay: 25

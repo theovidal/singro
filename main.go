@@ -24,13 +24,21 @@ func main() {
 		log.Panicln(err)
 	}
 
-	var macros MacroConfig
-	err = yaml.Unmarshal(data, &macros)
+	var config SingroConfig
+	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		log.Panicln(err)
 	}
 
-	log.Println("singro started")
+	log.Println("singro daemon started")
+
+	macros := make(MacroConfig)
+	for key, macro := range config.Global {
+		macros[key] = macro
+	}
+	for key, macro := range config.Configs[config.Selected] {
+		macros[key] = macro
+	}
 
 	stack := make(map[int]bool)
 	for {
