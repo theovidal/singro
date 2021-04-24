@@ -1,7 +1,25 @@
 package main
 
-type MacroOutput interface {
-	Activate()
+// #include <Windows.h>
+//
+// void mouseInput(DWORD flags) {
+//    INPUT input;
+//    input.type=INPUT_MOUSE;
+//    input.mi.dx=0;
+//    input.mi.dy=0;
+//    input.mi.dwFlags=flags;
+//    input.mi.mouseData=0;
+//    input.mi.dwExtraInfo=0;
+//    input.mi.time=0;
+//
+//    SendInput(1,&input,sizeof(INPUT));
+// }
+import "C"
+
+type SingroConfig struct {
+	Global   MacroConfig
+	Selected int
+	Configs  []MacroConfig
 }
 
 type MacroConfig map[int]MacroGroup
@@ -61,19 +79,18 @@ type Key struct {
 }
 
 func (k Key) Activate() {
-	var kbInput KeyboardInput
-	kbInput.Type = 1
+	kbInput := KeyboardInput{Type: 1}
 
-	var mouseInput MouseInput
+	var mouseInput C.ulong
 
 	if k.Right {
-		mouseInput.mi.dwFlags |= 0x0008
+		mouseInput |= 0x0008
 	}
 	if k.Middle {
-		mouseInput.mi.dwFlags |= 0x0020
+		mouseInput |= 0x0020
 	}
 	if k.Left {
-		mouseInput.mi.dwFlags |= 0x0002
+		mouseInput |= 0x0002
 	}
 
 	Sleep(k.Delay)
@@ -81,24 +98,24 @@ func (k Key) Activate() {
 		kbInput.ki.wVk = uint16(k.Key)
 		kbInput.Press()
 	} else {
-		mouseInput.Apply()
+		C.mouseInput(mouseInput)
 	}
 
-	mouseInput.mi.dwFlags = 0
+	mouseInput = 0
 	if k.Right {
-		mouseInput.mi.dwFlags |= 0x0010
+		mouseInput |= 0x0010
 	}
 	if k.Middle {
-		mouseInput.mi.dwFlags |= 0x0040
+		mouseInput |= 0x0040
 	}
 	if k.Left {
-		mouseInput.mi.dwFlags |= 0x0004
+		mouseInput |= 0x0004
 	}
 
 	Sleep(k.Duration)
 	if k.Type == "keyboard" {
 		kbInput.Release()
 	} else {
-		mouseInput.Apply()
+		C.mouseInput(mouseInput)
 	}
 }
