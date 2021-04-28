@@ -39,6 +39,13 @@ var pressSequences = map[string]func(k *Key){
 	"keyboard": func(k *Key) {
 		KeyboardPress(k.Key)
 	},
+	"sequence": func(k *Key) {
+		for _, key := range k.Keys {
+			KeyboardPress(key)
+			Sleep(25)
+			KeyboardRelease(key)
+		}
+	},
 	"mouse": func(k *Key) {
 		var mouseInput C.ulong
 
@@ -60,6 +67,7 @@ var releaseSequences = map[string]func(k *Key){
 	"keyboard": func(k *Key) {
 		KeyboardRelease(k.Key)
 	},
+	"sequence": func(_ *Key) {},
 	"mouse": func(k *Key) {
 		var mouseInput C.ulong
 		if k.Right {
