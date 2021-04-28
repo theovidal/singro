@@ -3,14 +3,14 @@ package main
 /*
 #include <Windows.h>
 
-void mouseInput(DWORD flags) {
+void mouseInput(DWORD flags, DWORD mouseData, LONG dx, LONG dy) {
   INPUT input;
   input.type = INPUT_MOUSE;
 
-  input.mi.dx          = 0;
-  input.mi.dy          = 0;
-  input.mi.dwFlags     = flags | 1;
-  input.mi.mouseData   = 0;
+  input.mi.dx          = dx;
+  input.mi.dy          = dy;
+  input.mi.dwFlags     = flags;
+  input.mi.mouseData   = mouseData;
   input.mi.dwExtraInfo = 0;
   input.mi.time        = 0;
 
@@ -42,24 +42,44 @@ var pressSequences = map[string]func(k *Key){
 	"sequence": func(k *Key) {
 		for _, key := range k.Keys {
 			KeyboardPress(key)
-			Sleep(25)
 			KeyboardRelease(key)
 		}
 	},
 	"mouse": func(k *Key) {
-		var mouseInput C.ulong
+		var flags uint32
+		var mouseData uint32
+		var dx int32
+		var dy int32
 
 		if k.Right {
-			mouseInput |= 0x0008
+			flags |= 0x0008
 		}
 		if k.Middle {
-			mouseInput |= 0x0020
+			flags |= 0x0020
 		}
 		if k.Left {
-			mouseInput |= 0x0002
+			flags |= 0x0002
 		}
 
-		C.mouseInput(mouseInput)
+		if k.X != 0 || k.Y != 0 || k.Absolute {
+			flags |= 0x0001
+			if k.Absolute {
+				flags |= 0x8000
+			}
+			dx = k.X
+			dy = k.Y
+		}
+
+		if k.Wheel != 0 {
+			flags |= 0x0800
+			mouseData = k.Wheel
+		}
+		if k.HWheel != 0 {
+			flags |= 0x1000
+			mouseData = k.HWheel
+		}
+
+		C.mouseInput((C.ulong)(flags), (C.ulong)(mouseData), (C.long)(dx), (C.long)(dy))
 	},
 }
 
@@ -80,7 +100,7 @@ var releaseSequences = map[string]func(k *Key){
 			mouseInput |= 0x0004
 		}
 
-		C.mouseInput(mouseInput)
+		C.mouseInput(mouseInput, 0, 0, 0)
 	},
 }
 

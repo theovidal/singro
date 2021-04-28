@@ -48,13 +48,24 @@ type Macro struct {
 
 type Key struct {
 	Type     string
+	Delay    int
+	Duration int
+
+	// KEYBOARD TYPE
+	Key int
+
+	// SEQUENCE TYPE
+	Keys []int
+
+	// MOUSE TYPE
 	Right    bool
 	Middle   bool
 	Left     bool
-	Key      int
-	Keys     []int
-	Delay    int
-	Duration int
+	Wheel    uint32
+	HWheel   uint32
+	X        int32
+	Y        int32
+	Absolute bool
 }
 
 func (k Key) Activate() {
