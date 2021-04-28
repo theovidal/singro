@@ -1,44 +1,38 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"strconv"
 	"syscall"
 	"time"
-
-	"gopkg.in/yaml.v2"
 )
 
 var (
 	user32               = syscall.NewLazyDLL("user32.dll")
 	procGetAsyncKeyState = user32.NewProc("GetKeyState")
-	procSendInput        = user32.NewProc("SendInput")
 )
 
 func main() {
-	path := "./macros.yml"
-
-	data, err := ioutil.ReadFile(path)
+	config, err := Open()
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalf("‼ Error opening or creating configuration file: %s", err)
 	}
-
-	var config SingroConfig
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		log.Panicln(err)
-	}
-
-	log.Println("singro daemon started")
 
 	macros := make(MacroConfig)
 	for key, macro := range config.Global {
 		macros[key] = macro
 	}
-	for key, macro := range config.Configs[config.Selected] {
-		macros[key] = macro
+	if len(config.Configs) > 0 {
+		if config.Selected > len(config.Configs)-1 || config.Selected < 0 {
+			log.Fatalln("‼ Selected configuration index out of range")
+		}
+
+		for key, macro := range config.Configs[config.Selected] {
+			macros[key] = macro
+		}
 	}
+
+	log.Printf("▶ singro now running with %d macros", len(macros))
 
 	stack := make(map[int]bool)
 	for {
@@ -54,7 +48,7 @@ func main() {
 			}
 
 			if !stack[key] {
-				log.Printf("Macro on key %d executed", key)
+				log.Printf("ℹ Macro on key %d executed", key)
 				macro.Execute()
 				stack[key] = true
 			}
