@@ -1,8 +1,6 @@
-bon du cou# singro
+# singro
 
-**S**imple W**in**dows and **G**olang Mac**r**o s**o**ftware
-
-A simple project, just for fun.
+A simple Windows macro software written in Golang, with an Electron.js configuration UI
 
 ## 🌈 How it works
 
@@ -12,6 +10,8 @@ The software uses native Windows API, like the `SendInput` method to execute the
 
 The main code is written in Go, and some parts in C for a better compatibility with standard libraries that interact with the system.
 
+The interface to configure macros uses JavaScript with Vue.js and Vuetify, and Electron to build a native app. The core itself can be run without it.
+
 ## 💻 Development
 
 First, check the following requirements:
@@ -19,6 +19,7 @@ First, check the following requirements:
 - Git, for version control
 - Golang 1.16 or higher with go-modules for dependencies
 - A C compiler and cgo setup
+- Node.js 14 or higher with either npm or yarn
 
 Clone the project on your local machine:
 
@@ -27,11 +28,22 @@ git clone https://github.com/theovidal/singro  # HTTP
 git clone git@github.com:theovidal/singro      # SSH
 ```
 
+Install the node.js dependencies:
+
+```bash
+npm i         # NPM
+yarn install  # Yarn
+```
+
 To run and test the software, simply use `go run .`. To build an executable, use `go build .`.
+
+To run and test the interface, run the `electron:serve` script, and `electron:build` to build the native app.
 
 ## 🔐 Credits
 
 - Maintainer: [Théo Vidal](https://github.com/theovidal)
+- Cloned from [Highest template](https://github.com/highest-app/template)
+- Libraries: Vue.js, Vuetify, Electron
 
 ## 📜 License
 
