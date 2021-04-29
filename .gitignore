@@ -1,2 +1,9 @@
-*.exe
+.vscode
 .idea
+
+node_modules
+
+*.exe
+
+#Electron-builder output
+/dist_electron

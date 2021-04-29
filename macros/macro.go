@@ -15,7 +15,10 @@ type MacroGroup struct {
 
 func (group *MacroGroup) Execute() {
 	for _, macro := range group.Macros {
-		for i := -1; i < macro.Repeat; i++ {
+		iterations := macro.Repeat
+		if iterations == 0 { iterations++ }
+
+		for i := 0; i < iterations; i++ {
 			if macro.Shift {
 				KeyboardPress(0x10)
 			}
@@ -48,6 +51,7 @@ type Macro struct {
 
 type Key struct {
 	Type     string
+	Repeat   int
 	Delay    int
 	Duration int
 
@@ -69,9 +73,14 @@ type Key struct {
 }
 
 func (k Key) Activate() {
-	Sleep(k.Delay)
-	pressSequences[k.Type](&k)
+	iterations := k.Repeat
+	if iterations == 0 { iterations++ }
 
-	Sleep(k.Duration)
-	releaseSequences[k.Type](&k)
+	for i := 0; i < iterations; i++ {
+		Sleep(k.Delay)
+		pressSequences[k.Type](&k)
+
+		Sleep(k.Duration)
+		releaseSequences[k.Type](&k)
+	}
 }

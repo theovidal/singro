@@ -1,4 +1,4 @@
-module github.com/theovidal/singro
+module github.com/theovidal/singro/macros
 
 go 1.16
 
